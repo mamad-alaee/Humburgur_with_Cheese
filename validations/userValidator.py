@@ -18,4 +18,4 @@ async def getUserData(
         return userValidator(full_name=full_name,password=password,email=email)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
+
