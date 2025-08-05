@@ -1,9 +1,13 @@
 from models.User import User
 from fastapi import HTTPException
+from models.Role import Role
+from controllers.authController import decode_access_token,check_is_owner
 
 def save_user(userData):
     try:
-        created_user = User(**dict(userData)).save()
+        userData["role"] = Role.objects(name="customer").first()
+        created_user = User(**userData).save()
+
         return {"job":"ok", "data":str(created_user)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -39,3 +43,17 @@ def update_user_with_id(userId, newUserData):
         raise HTTPException(status_code=404, detail="User not found")
     else:
         return {"job":"ok", "data":f"user with id {userId} updated successfully"}
+
+def insert_admin_user(userData,token):
+    try:
+        requested_user_data = decode_access_token(token)
+        userData["role"] = Role.objects(name="admin").first()
+        if check_is_owner(requested_user_data):
+            inserted_user = User(**userData).save()
+            return {"job":"ok","message":"admin user created successfully"}
+        else:
+            raise HTTPException(status_code=403, detail="You are not authorized to perform this action")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    

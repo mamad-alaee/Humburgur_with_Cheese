@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from initiators.init_db import connect_to_db
 from initiators.setRoutes import setRouters
+from initiators.initData import init_base_data
+
+
 
 originalApp = FastAPI(
     title="Humburgur with Cheese",
@@ -9,5 +12,7 @@ originalApp = FastAPI(
 )
 
 connect_to_db()
+init_base_data()
 setRouters(originalApp)
+
 
