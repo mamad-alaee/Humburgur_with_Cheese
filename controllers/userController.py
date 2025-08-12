@@ -1,7 +1,7 @@
 from models.User import User
 from fastapi import HTTPException
 from models.Role import Role
-from controllers.authController import decode_access_token,check_is_owner
+from controllers.authController import decode_access_token,check_is_owner,check_is_admin_or_higher
 
 def save_user(userData):
     try:
@@ -20,15 +20,19 @@ def delete_user_with_id(userId):
     else:
         return {"job":"ok", "data":f"user with id {userId} deleted successfully"}
 
-def find_users(page,limit):
-    skip = (page-1)*limit
-    userList = list(User.objects().skip(skip).limit(limit).as_pymongo())
-    if len(userList) == 0:
-        raise HTTPException(status_code=204, detail="No users found")
+def find_users(page,limit,jwt_token):
+    if check_is_admin_or_higher(decode_access_token(jwt_token)):
+        skip = (page-1)*limit
+        userList = list(User.objects().skip(skip).limit(limit).as_pymongo())
+        if len(userList) == 0:
+            raise HTTPException(status_code=204, detail="No users found")
+        else:
+            for user in userList:
+                user["_id"] = str(user["_id"])
+                user["role"] = str(user["role"])
+            return {"job":"ok", "data":userList}
     else:
-        for user in userList:
-            user["_id"] = str(user["_id"])
-        return {"job":"ok", "data":userList}
+        raise HTTPException(status_code=403, detail="You are not authorized to perform this action")
     
 def find_user_with_id(userId):
     founded_user = list(User.objects(id=userId).as_pymongo())[0]
