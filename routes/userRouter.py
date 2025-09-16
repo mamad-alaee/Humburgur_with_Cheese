@@ -1,7 +1,8 @@
-from fastapi import APIRouter,Depends,Header
+from fastapi import APIRouter,Depends,Header,File,UploadFile
 from validations.userValidator import userValidator,getUserData
-from controllers.userController import insert_admin_user,update_user_with_id,find_user_with_id,find_users,save_user,delete_user_with_id
+from controllers.userController import save_profile_pic,insert_admin_user,update_user_with_id,find_user_with_id,find_users,save_user,delete_user_with_id
 from fastapi.responses import JSONResponse
+
 
 
 user_router = APIRouter()
@@ -31,6 +32,7 @@ async def delete_user(user_id: str):
 @user_router.post("/admin")
 async def create_admin_user(userData:userValidator = Depends(getUserData),jwt_token:str = Header(...)):
     return insert_admin_user(dict(userData),jwt_token)
+
 
 
 # @user_router.middleware("http")
