@@ -4,7 +4,7 @@ from initiators.setRoutes import setRouters
 from initiators.initData import init_base_data
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
+from initiators.init_logger import init_logger
 
 originalApp = FastAPI(
     title="Humburgur with Cheese",
@@ -15,7 +15,7 @@ originalApp = FastAPI(
 connect_to_db()
 init_base_data()
 setRouters(originalApp)
-
+init_logger()
 
 # origins = [
 #     "varzesh3.ir"

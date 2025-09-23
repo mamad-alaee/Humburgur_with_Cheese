@@ -4,3 +4,4 @@ python-multipart
 mongoengine
 pydantic[email]
 python-jose[cryptography]
+loguru
