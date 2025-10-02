@@ -5,3 +5,5 @@ mongoengine
 pydantic[email]
 python-jose[cryptography]
 loguru
+apscheduler
+redis

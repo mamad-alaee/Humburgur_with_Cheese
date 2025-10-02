@@ -1,21 +1,39 @@
 from fastapi import FastAPI
-from initiators.init_db import connect_to_db
+from initiators.init_db import connect_to_db,close_db_connection
 from initiators.setRoutes import setRouters
 from initiators.initData import init_base_data
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from initiators.init_logger import init_logger
+from initiators.init_jobs import create_jobs
+from contextlib import asynccontextmanager
+from initiators.init_redis import connect_redis,close_redis
 
-originalApp = FastAPI(
+@asynccontextmanager
+async def lifespan(app:FastAPI):
+    # شروع کار
+    await connect_to_db()
+    init_base_data() # seeder
+    setRouters(app)
+    init_logger()
+    create_jobs()
+    app.state.redis = await connect_redis()
+    yield
+    # پایان کار
+    await close_db_connection()
+    await close_redis(app.state.redis)
+
+app = FastAPI(
     title="Humburgur with Cheese",
     description="A simple API for serving Humburgur with Cheese",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
 
-connect_to_db()
-init_base_data()
-setRouters(originalApp)
-init_logger()
+
+
+
+
 
 # origins = [
 #     "varzesh3.ir"
