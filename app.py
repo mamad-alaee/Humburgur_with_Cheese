@@ -9,6 +9,7 @@ from initiators.init_jobs import create_jobs
 from contextlib import asynccontextmanager
 from initiators.init_redis import connect_redis,close_redis
 
+
 @asynccontextmanager
 async def lifespan(app:FastAPI):
     # شروع کار
