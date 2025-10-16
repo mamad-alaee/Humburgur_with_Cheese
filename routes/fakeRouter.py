@@ -1,6 +1,8 @@
-from fastapi import APIRouter,Request
+from fastapi import APIRouter,Request,File,UploadFile,HTTPException
 from random import randint
-
+import shutil
+from os import getcwd,makedirs
+from os.path import isdir
 
 fake_router = APIRouter()
 
@@ -20,4 +22,18 @@ async def verify_code(request: Request, phone_number: str, code: str):
     else:
         return {"message": "Code is incorrect"}
     
+    
+@fake_router.post("/upload_profile")
+async def upload_profile(profile_pic:UploadFile=File(...)):
+    if profile_pic.content_type not in ["image/jpeg", "image/png", "image/gif"]:
+        raise HTTPException(status_code=415, detail="Unsupported file type")
+    if profile_pic.size < 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large")
+    save_path = f"{getcwd()}/public"
+    if not isdir(save_path):
+        makedirs(save_path)
+    with open(f"{save_path}/{profile_pic.filename}", "wb") as buffer:
+        shutil.copyfileobj(profile_pic.file, buffer)
+   
+
     
